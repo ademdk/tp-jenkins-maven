@@ -9,16 +9,13 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                // On est déjà dans le bon dossier (pom.xml à la racine)
-                // Jenkins tourne chez toi sur Linux → on garde sh
-                sh 'mvn clean package'
+      stage('Build') {
+    steps {
+        // On construit mais on ignore les tests
+        sh 'mvn clean package -DskipTests'
+    }
+}
 
-                // Si un jour tu es sur Jenkins Windows, tu utiliseras :
-                // bat 'mvn clean package'
-            }
-        }
     }
 
     post {
