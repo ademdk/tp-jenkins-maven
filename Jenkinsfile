@@ -16,6 +16,21 @@ pipeline {
             }
         }
 
+        stage('MVN SONARQUBE') {
+            steps {
+                // Analyse de code avec SonarQube
+                // "sonarqube-8.9" doit être le Name configuré dans Manage Jenkins -> System -> SonarQube servers
+                withSonarQubeEnv('sonarqube-8.9') {
+                    sh '''
+                        mvn sonar:sonar \
+                          -DskipTests \
+                          -Dsonar.projectKey=student-management \
+                          -Dsonar.projectName=student-management
+                    '''
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 // Construction de l'image Docker à partir du Dockerfile
