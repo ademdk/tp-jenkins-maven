@@ -2,27 +2,46 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
-                // Récupère le code depuis ton dépôt GitHub
                 git branch: 'main', url: 'https://github.com/ademdk/tp-jenkins-maven.git'
             }
         }
 
-      stage('Build') {
-    steps {
-        // On construit mais on ignore les tests
-        sh 'mvn clean package -DskipTests'
-    }
-}
+        stage('Build Maven') {
+            steps {
+                // build du projet et génération du .jar dans target/
+                sh 'mvn clean package -DskipTests'
+            }
+        }
 
+        stage('Build Docker Image') {
+            steps {
+                // construction de l'image Docker à partir du Dockerfile
+                sh 'docker build -t 2001107822455/student-management:1.0 .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                // login DockerHub + push de l'image
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker push 2001107822455/student-management:1.0'
+                }
+            }
+        }
     }
 
     post {
         success {
-            // Le JAR sera dans target/ directement
+            // on archive le .jar généré
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            // Pour une appli .war, tu mettrais : 'target/*.war'
         }
     }
 }
