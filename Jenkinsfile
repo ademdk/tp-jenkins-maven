@@ -11,21 +11,21 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                // build du projet et génération du .jar dans target/
+                // Build du projet et génération du .jar dans target/
                 sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // construction de l'image Docker à partir du Dockerfile
+                // Construction de l'image Docker à partir du Dockerfile
                 sh 'docker build -t 2001107822455/student-management:1.0 .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                // login DockerHub + push de l'image
+                // Login DockerHub + push de l'image
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
@@ -40,7 +40,7 @@ pipeline {
 
     post {
         success {
-            // on archive le .jar généré
+            // On archive le .jar généré par Maven
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
     }
